@@ -2,13 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-	<groupId>${groupId}</groupId>
-	<artifactId>${artifactId}</artifactId>
-	<version>${version}</version>
+	<groupId>se.repos</groupId>
+	<artifactId>authproxy</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
-	<name>NONAME Repos project</name>
+	<name>Repos Authentication Proxy</name>
 	<url>http://www.repos.se/</url>
+	<description>
+		HTTP authentication proxy, Repos Web concept.
+		A method to get credentials if present,
+		means of signalling where authentication is required (with realm name),
+		handler for the exception thrown if authentication is not present,
+		prompt for authentication in presentation layer.
+	</description>
 	
 	<parent>
 		<groupId>se.repos</groupId>
@@ -18,7 +25,7 @@
 	
 	<scm>
 		<developerConnection>
-			scm:svn:https://labs.repos.se/svn/${project.artifactId}/trunk
+			scm:svn:https://labs.repos.se/svn/repos-authproxy/trunk
 		</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
@@ -27,8 +34,25 @@
 		<system>Trac</system>
 		<url>https://labs.repos.se/trac/</url>
 	</issueManagement>
-		
+
 	<dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>example-jetty-embedded</artifactId>
+			<version>7.2.2.v20101205</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.repos</groupId>
+			<artifactId>restclient</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 	
 </project>
