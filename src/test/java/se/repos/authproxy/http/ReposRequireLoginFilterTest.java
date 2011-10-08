@@ -2,11 +2,6 @@ package se.repos.authproxy.http;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-
 import javax.servlet.Filter;
 
 import org.eclipse.jetty.embedded.HelloServlet;
@@ -14,12 +9,11 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.Test;
 
 import se.repos.restclient.HttpStatusError;
 import se.repos.restclient.RestResponseBean;
-import se.repos.restclient.javase.RestGetClientJavaNet;
+import se.repos.restclient.javase.RestClientJavaNet;
 
 public class ReposRequireLoginFilterTest {
 
@@ -45,18 +39,15 @@ public class ReposRequireLoginFilterTest {
 
         server.start();
         
-        try {
-        	String url = "http://localhost:" + port + "/";
-        	try {
-        		new RestGetClientJavaNet().get(url, new RestResponseBean());
-        		fail("Request should be interceptet by filter that requires authentication");
-        	} catch (HttpStatusError e) {
-        		assertEquals(401, e.getHttpStatus());
-        	}
-        	
-        } finally {
-        	server.stop();
-        }
+        RestClientJavaNet client = new RestClientJavaNet("http://localhost:" + port + "", null);
+    	try {
+    		client.get("/", new RestResponseBean());
+    		fail("Request should be interceptet by filter that requires authentication");
+    	} catch (HttpStatusError e) {
+    		assertEquals(401, e.getHttpStatus());
+    	} finally {
+    		server.stop();
+    	}
 	}
 
 }

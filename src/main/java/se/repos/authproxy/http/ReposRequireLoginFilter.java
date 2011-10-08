@@ -16,8 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Experimental filter, requiring authentication until
- * we have a solution for on-demand with realm.
+ * Simple filter that requires BASIC authentication for all requests.
+ * Used as an alternative filter where the try-retry approach of
+ * {@link ReposLoginOnDemandFilter} is not practical.
+ * This filter must be configured with a realm, unlike on-demand authentication.
+ * 
  */
 public class ReposRequireLoginFilter implements Filter {
 
