@@ -31,7 +31,9 @@ import se.repos.authproxy.AuthRequiredException;
 import se.repos.restclient.HttpStatusError;
 import se.repos.restclient.ResponseHeaders;
 import se.repos.restclient.RestAuthentication;
+import se.repos.restclient.RestClient;
 import se.repos.restclient.RestResponseBean;
+import se.repos.restclient.hc.RestClientHc;
 import se.repos.restclient.javase.RestClientJavaNet;
 
 public class ReposRequireLoginFilterTest {
@@ -126,8 +128,8 @@ public class ReposRequireLoginFilterTest {
 
 		server.start();
 		
-		RestClientJavaNet client = new RestClientJavaNet("http://localhost:" + port + "", null);
-		RestClientJavaNet clientWithAuth = new RestClientJavaNet("http://localhost:" + port + "", new RestAuthentication() {
+		RestClient client = new RestClientJavaNet("http://localhost:" + port + "", null);
+		RestClient clientWithAuth = new RestClientHc("http://localhost:" + port + "", new RestAuthentication() {
 			@Override public String getUsername(String u, String e, String a) { return "name"; }
 			@Override public SSLSocketFactory getSSLSocketFactory(String root) { return null; }
 			@Override public String getPassword(String u, String e, String a, String n) { return "pass"; }
