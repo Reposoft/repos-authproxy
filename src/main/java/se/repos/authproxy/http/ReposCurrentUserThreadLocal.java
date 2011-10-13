@@ -14,7 +14,13 @@ public class ReposCurrentUserThreadLocal implements ReposCurrentUser {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Method not implemented");
 	}
-
+	
+	@Override
+	public String getRealm() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method not implemented");
+	}
+	
 	@Override
 	public String getPassword() {
 		// TODO Auto-generated method stub
@@ -28,7 +34,7 @@ public class ReposCurrentUserThreadLocal implements ReposCurrentUser {
 	}
 
 	@Override
-	public String getUsernameRequired() {
+	public String getUsernameRequired(String realm) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Method not implemented");
 	}

@@ -4,11 +4,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import se.repos.authproxy.ReposAuthFailedException;
+import se.repos.authproxy.AuthFailedException;
 
 /**
  * Test that svn authentication and authorization errors
- * can be translated to {@link ReposAuthFailedException}
+ * can be translated to {@link AuthFailedException}
  * <em>with realm</em>.
  * If we can't get realm the authproxy would have to do
  * an extra HTTP request before it can ask for authentication.

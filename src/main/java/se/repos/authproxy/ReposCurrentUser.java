@@ -20,9 +20,23 @@ public interface ReposCurrentUser {
 	 */
 	public boolean isAuthenticated();
 	
+	/**
+	 * HTTP authentication concept.
+	 * @return the realm name for which the username and password was entered
+	 */
+	public String getRealm();
+	
 	public String getUsername();
 
-	public String getUsernameRequired();
+	/**
+	 * Gets the username if set AND if the provided realm is identical
+	 * to that for the current user, otherwise throws an
+	 * {@link AuthRequiredException} with the realm.
+	 * @param realm For matching and for requesting auth when needed.
+	 * @return Username if authenticated with the given realm name
+	 * @throws AuthRequiredException if no such login has been made
+	 */
+	public String getUsernameRequired(String realm) throws AuthRequiredException;
 	
 	public String getPassword();
 	

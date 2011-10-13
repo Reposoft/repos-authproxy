@@ -9,13 +9,13 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import se.repos.authproxy.ReposAuthRequiredException;
+import se.repos.authproxy.AuthRequiredException;
 
 /**
- * Catches {@link ReposAuthRequiredException} and requests authentication
+ * Catches {@link AuthRequiredException} and requests authentication
  * from client, leading to a new request with ReposAuthHolder populated.
  * <p>
- * If {@link ReposAuthRequiredException} can not produce a realm,
+ * If {@link AuthRequiredException} can not produce a realm,
  * realm must be configured in this filter.
  * <p>
  * Web browsers usually remember the paths where credentials should be sent
