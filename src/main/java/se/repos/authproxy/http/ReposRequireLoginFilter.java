@@ -74,7 +74,7 @@ public class ReposRequireLoginFilter implements Filter {
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse resp = (HttpServletResponse) response;
-		logger.debug("Authentication filter invoked");
+		logger.trace("Authentication filter invoked");
 
 		if (!new BasicAuthToken(req).onto(currentUser).isFound()) {
 			requireAuthentication(resp, getRealm());
@@ -87,6 +87,9 @@ public class ReposRequireLoginFilter implements Filter {
 		} catch (AuthFailedException e) {
 			// TODO make sure body output has not started
 			logger.info("Authentication failure from service detected.", e);
+			if (e.getRealm() == null || e.getRealm().length() == 0) {
+				logger.warn("No login realm provided for auth exception -- incompatible with on-demand auth");
+			}
 			requireAuthentication(resp, getRealm());
 			return;
 		} catch (HttpStatusError h) {
@@ -106,27 +109,6 @@ public class ReposRequireLoginFilter implements Filter {
 				throw h;
 			}
 		}
-		
-		/* old code that assumes auth configured in tomcat
-		if (user != null) {
-			String strUser = user.getName();
-			if (strUser != null && strUser.length() > 0) {
-				CurrentUser.setUsername(strUser);
-			} else {
-				logger.error("Username is empty");
-			}
-		}
-		
-		// Continue processing the rest of the filter chain.
-		try {
-		*/
-			
-		/*
-		} finally {
-			// Remove the added element again - only if added.
-			CurrentUser.clearUsername();
-		}
-		*/
 	}
 
 	/**

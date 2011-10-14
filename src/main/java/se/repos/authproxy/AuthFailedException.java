@@ -1,5 +1,8 @@
 package se.repos.authproxy;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Thrown by any backend to signal that the credentials provided
  * by the auth proxy was rejected at authentication,
@@ -64,6 +67,27 @@ public class AuthFailedException extends RuntimeException {
 	 */
 	public String getRealm() {
 		return this.realm;
+	}
+	
+	/**
+	 * Analyze an exception to look for authentication errors from
+	 * a bunch of known libraries: svnkit, solrj.
+	 * See tests in "supports" package.
+	 * @param e Any exception
+	 * @throws AuthFailedException If the exception is a known authentication failure
+	 */
+	public static void analyze(Exception e) throws AuthFailedException {
+		analyzeSvnKit(e);
+	}
+	
+	private static void analyzeSvnKit(Exception e) {
+		if ("org.tmatesoft.svn.core.SVNAuthenticationException".equals(e.getClass().getName())) {
+			// svn: Authentication required for '<http://localhost:49999> See-if-svnkit-detects-this-realm
+			Matcher matcher = Pattern.compile(".*Authentication required for '\\S+ (.*)'").matcher(e.getMessage());
+			if (matcher.matches()) {
+				throw new AuthFailedException(e, matcher.group(1));
+			}
+		}
 	}
 	
 }
