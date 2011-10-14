@@ -90,6 +90,7 @@ public class ReposLoginOnDemandFilterTest {
 		Filter filter = new ReposRequireLoginFilter();
 		FilterHolder holder = new FilterHolder(filter);
 		holder.setInitParameter("realm", "Test realm");
+		//holder.setInitParameter("currentUserImpl", ""); // Needs to be same instance?
 		context.addFilter(holder, "/*", 0);
 
 		server.start();

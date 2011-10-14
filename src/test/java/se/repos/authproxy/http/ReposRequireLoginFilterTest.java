@@ -92,7 +92,7 @@ public class ReposRequireLoginFilterTest {
 		context.addServlet(new ServletHolder(new HttpServlet() {
 			@Override protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
 					throws ServletException, IOException {
-				throw new AuthFailedException("Service auth failed");
+				throw new AuthFailedException("Service auth failed, no realm");
 			}
 		}), "/a");
 		context.addServlet(new ServletHolder(new HttpServlet() {
@@ -151,7 +151,7 @@ public class ReposRequireLoginFilterTest {
 				clientWithAuth.get("/a", resp);
 				fail("Client should get status != 200");
 			} catch (HttpStatusError e) {
-				assertEquals("Should get authentication failed", 401, e.getHttpStatus());
+				assertEquals("Should get authentication failed (retry)", 401, e.getHttpStatus());
 				assertEquals("Should be the configured realm", "Basic realm=\"Test realm\"", e.getHeaders().get("WWW-Authenticate").get(0));
 			}
 			// No authentication + AuthRequiredException -- not possible with Require filter

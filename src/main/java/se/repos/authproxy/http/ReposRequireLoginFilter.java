@@ -2,6 +2,7 @@ package se.repos.authproxy.http;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.authproxy.AuthFailedException;
 import se.repos.authproxy.AuthRequiredException;
+import se.repos.authproxy.ReposCurrentUser;
 import se.repos.restclient.HttpStatusError;
 
 /**
@@ -45,6 +47,7 @@ public class ReposRequireLoginFilter implements Filter {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	private ReposCurrentUserBase currentUser;
 	private String realm = "_realm_not_set_";
 	
 	void setRealm(String realm) {
@@ -62,26 +65,48 @@ public class ReposRequireLoginFilter implements Filter {
 			throw new ServletException("Require Login filter needs a 'realm' init parameter. Use Login On Demand filter to autodetect realm.");
 		}
 		setRealm(realm);
-		logger.info("Require Login filter was initialized with realm {}", getRealm());
+		currentUser = (ReposCurrentUserBase) ReposCurrentUser.DEFAULT; // could use an init param to set custom, unless we have dependency injection in filters 
+		logger.info("Require Login filter initialized with realm {}, holder {}", getRealm(), currentUser);
 	}
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
-		logger.debug("Authentication filter running");
-		HttpServletRequest httprequest = (HttpServletRequest) request;
-		Principal user = httprequest.getUserPrincipal();
+		HttpServletRequest req = (HttpServletRequest) request;
+		HttpServletResponse resp = (HttpServletResponse) response;
+		logger.debug("Authentication filter invoked");
 
-		if (user == null) {
-			logger.debug("No user principal found, asking for retry with BASIC authentication");
-			HttpServletResponse httpresponse = (HttpServletResponse) response;
-			
-			httpresponse.setHeader("WWW-Authenticate", "Basic realm=\"" + getRealm() + "\"");
-			httpresponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		} else {
-			logger.debug("Request authenticated as user {}", user);
-			chain.doFilter(request, response);
+		if (!new BasicAuthToken(req).onto(currentUser).isFound()) {
+			requireAuthentication(resp, getRealm());
+			return; // proceeding with chain would lead to illegal state
 		}
+
+		logger.debug("The request is authenticated as user '{}'", currentUser.getUsername());
+		try {
+			chain.doFilter(request, response);
+		} catch (AuthFailedException e) {
+			// TODO make sure body output has not started
+			logger.info("Authentication failure from service detected.", e);
+			requireAuthentication(resp, getRealm());
+			return;
+		} catch (HttpStatusError h) {
+			// TODO make sure body output has not started
+			logger.info("REST authentication failure from service detected.", h);
+			if (h.getHttpStatus() == 401) {
+				List<String> header = h.getHeaders().get("WWW-Authenticate");
+				if (header != null && header.size() > 0) {
+					requireAuthentication(resp, getRealm());
+					return;
+				} else {
+					// Warn because this would not work with on-demand authentication
+					logger.error("Auth proxy received 401 status without authentication header");
+					throw h;
+				}
+			} else {
+				throw h;
+			}
+		}
+		
 		/* old code that assumes auth configured in tomcat
 		if (user != null) {
 			String strUser = user.getName();
@@ -104,10 +129,17 @@ public class ReposRequireLoginFilter implements Filter {
 		*/
 	}
 
+	/**
+	 * Send response to require authentication, using default response body.
+	 */
+	private void requireAuthentication(HttpServletResponse resp, String realm) throws IOException {
+		resp.setHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
+		resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+	}
+
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-
+		logger.debug("Filter destroyed");
 	}
 
 }
