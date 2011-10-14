@@ -1,42 +1,33 @@
 package se.repos.authproxy.http;
 
-import se.repos.authproxy.ReposCurrentUser;
-
 /**
- * Like Spring Security does it.
+ * Inspired by Spring Security.
+ * See http://static.springsource.org/spring-security/site/docs/3.1.x/apidocs/org/springframework/security/core/context/SecurityContextHolder.html
+ * 
+ * Compare
+ * http://static.springsource.org/spring-security/site/xref/org/springframework/security/context/ThreadLocalSecurityContextHolderStrategy.html
+ * with
+ * http://static.springsource.org/spring-security/site/xref/org/springframework/security/context/GlobalSecurityContextHolderStrategy.html
  */
-public class ReposCurrentUserThreadLocal implements ReposCurrentUser {
+public class ReposCurrentUserThreadLocal extends ReposCurrentUserBase {
 
-	// TODO how to set in a protected manner?
+	private static ThreadLocal<String> u = new ThreadLocal<String>();
+	private static ThreadLocal<String> p = new ThreadLocal<String>();
 	
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");
-	}
-	
-	@Override
-	public String getRealm() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");
+		return u.get();
 	}
 	
 	@Override
 	public String getPassword() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");
+		return p.get();
 	}
 
 	@Override
-	public boolean isAuthenticated() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");
-	}
-
-	@Override
-	public String getUsernameRequired(String realm) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");
+	void success(String username, String password) {
+		u.set(username);
+		p.set(password);
 	}
 
 }
