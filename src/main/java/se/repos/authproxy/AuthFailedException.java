@@ -71,7 +71,8 @@ public class AuthFailedException extends RuntimeException {
 	
 	/**
 	 * Analyze an exception to look for authentication errors from
-	 * a bunch of known libraries: svnkit, solrj.
+	 * a bunch of known libraries: svnkit.
+	 * Solrj needs customization.
 	 * See tests in "supports" package.
 	 * @param e Any exception
 	 * @throws AuthFailedException If the exception is a known authentication failure
