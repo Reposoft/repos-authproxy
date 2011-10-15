@@ -12,6 +12,8 @@ import se.repos.restclient.RestAuthentication;
  */
 public class RestAuthenticationAuthproxy implements RestAuthentication {
 
+	private ReposCurrentUser user;
+
 	/**
 	 * Uses default {@link ReposCurrentUser}.
 	 */
@@ -24,21 +26,18 @@ public class RestAuthenticationAuthproxy implements RestAuthentication {
 	 */
 	@Inject
 	public RestAuthenticationAuthproxy(ReposCurrentUser reposCurrentUser) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");		
+		this.user = reposCurrentUser;	
 	}
 	
 	@Override
 	public String getUsername(String root, String resource, String realm) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");
+		return user.getUsername();
 	}
 
 	@Override
 	public String getPassword(String root, String resource, String realm,
 			String username) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method not implemented");
+		return user.getPassword();
 	}
 
 	/**
@@ -47,7 +46,7 @@ public class RestAuthenticationAuthproxy implements RestAuthentication {
 	 */
 	@Override
 	public SSLSocketFactory getSSLSocketFactory(String root) {
-		throw new UnsupportedOperationException("SSL cert authentication not supported by Authproxy");
+		return null;
 	}
 
 }
