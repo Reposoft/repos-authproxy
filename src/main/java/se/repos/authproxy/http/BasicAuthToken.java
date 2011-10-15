@@ -46,7 +46,11 @@ class BasicAuthToken {
 	
 	static String base64decode(String encoded) {
 		try {
-			return new String(javax.xml.bind.DatatypeConverter.parseBase64Binary(encoded));
+			Class<?> c = Class.forName("javax.xml.bind.DatatypeConverter");
+			if (c != null) {
+				byte[] b = (byte[]) c.getMethod("parseBase64Binary", String.class).invoke(null, encoded);
+				return new String(b);
+			}
 		} catch (Exception e) {
 			// continue
 		}
@@ -60,8 +64,10 @@ class BasicAuthToken {
 //		}
 		// We'll probably end up here in java < 1.6
 		try {
-			if (Class.forName("org.apache.commons.codec.binary.Base64") != null) {
-				return new String(org.apache.commons.codec.binary.Base64.decodeBase64(encoded));
+			Class c = Class.forName("org.apache.commons.codec.binary.Base64");
+			if (c != null) {
+				byte[] b = (byte[]) c.getMethod("decodeBase64", String.class).invoke(null, encoded);
+				return new String(b);
 			}
 		} catch (Exception e2) {
 			// continue
