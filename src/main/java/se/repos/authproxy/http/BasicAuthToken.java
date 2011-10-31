@@ -3,11 +3,12 @@ package se.repos.authproxy.http;
 import javax.servlet.http.HttpServletRequest;
 
 import se.repos.restclient.base.Codecs;
+import se.repos.restclient.javase.RestClientJavaNet;
 
 class BasicAuthToken {
 
-	static final String HEADER_NAME = "Authorization"; 
-	static final String HEADER_PREFIX = "Basic ";
+	static final String HEADER_NAME = RestClientJavaNet.AUTH_HEADER_NAME; 
+	static final String HEADER_PREFIX = RestClientJavaNet.AUTH_HEADER_PREFIX;
 	
 	private String[] pair = null;
 	
