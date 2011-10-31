@@ -42,9 +42,4 @@ public class BasicAuthTokenTest {
 		}
 	}
 	
-	@Test
-	public void testDecodeBase64() {
-		assertEquals("apa:bepa", BasicAuthToken.base64decode("YXBhOmJlcGE="));
-	}
-	
 }
