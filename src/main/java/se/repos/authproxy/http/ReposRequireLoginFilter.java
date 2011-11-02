@@ -1,8 +1,6 @@
 package se.repos.authproxy.http;
 
 import java.io.IOException;
-import java.security.Principal;
-import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -16,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.repos.authproxy.AuthDetection;
 import se.repos.authproxy.AuthFailedException;
 import se.repos.authproxy.AuthRequiredException;
 import se.repos.authproxy.ReposCurrentUser;
@@ -49,6 +48,7 @@ public class ReposRequireLoginFilter implements Filter {
 	
 	private ReposCurrentUserBase currentUser;
 	private String realm = "_realm_not_set_";
+	private AuthDetection authDetection = AuthDetection.all; // TODO activate known
 	
 	void setRealm(String realm) {
 		this.realm = realm;
@@ -76,6 +76,7 @@ public class ReposRequireLoginFilter implements Filter {
 		HttpServletResponse resp = (HttpServletResponse) response;
 		logger.trace("Authentication filter invoked");
 
+		// This filter always requires login, although it can not validate them other than through exceptions received
 		if (!new BasicAuthToken(req).onto(currentUser).isFound()) {
 			requireAuthentication(resp, getRealm());
 			return; // proceeding with chain would lead to illegal state
@@ -83,7 +84,18 @@ public class ReposRequireLoginFilter implements Filter {
 
 		logger.debug("The request is authenticated as user '{}'", currentUser.getUsername());
 		try {
-			chain.doFilter(request, response);
+			try {
+				chain.doFilter(request, response);
+			} catch (IOException e) {
+				authDetection.analyze(e);
+				throw e;
+			} catch (ServletException e) {
+				authDetection.analyze(e);
+				throw e;
+			} catch (RuntimeException e) {
+				authDetection.analyze(e);
+				throw e;
+			}
 		} catch (AuthFailedException e) {
 			// TODO make sure body output has not started
 			logger.info("Authentication failure from service detected.", e);
@@ -92,22 +104,6 @@ public class ReposRequireLoginFilter implements Filter {
 			}
 			requireAuthentication(resp, getRealm());
 			return;
-		} catch (HttpStatusError h) {
-			// TODO make sure body output has not started
-			logger.info("REST authentication failure from service detected.", h);
-			if (h.getHttpStatus() == 401) {
-				List<String> header = h.getHeaders().get("WWW-Authenticate");
-				if (header != null && header.size() > 0) {
-					requireAuthentication(resp, getRealm());
-					return;
-				} else {
-					// Warn because this would not work with on-demand authentication
-					logger.error("Auth proxy received 401 status without authentication header");
-					throw h;
-				}
-			} else {
-				throw h;
-			}
 		}
 	}
 

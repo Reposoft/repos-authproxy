@@ -1,4 +1,4 @@
-package se.repos.authproxy.http.supports;
+package se.repos.authproxy.detection;
 
 import static org.junit.Assert.*;
 
@@ -19,6 +19,7 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNRevision;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
+import se.repos.authproxy.AuthDetection;
 import se.repos.authproxy.AuthFailedException;
 import se.repos.authproxy.http.ReposRequireLoginFilter;
 
@@ -33,6 +34,9 @@ public class SvnKitTest {
 
 	@Test
 	public void testToReposAuthFailedException() throws Exception  {
+		//AuthDetection authDetection = AuthDetection.all;
+		AuthDetection authDetection = new AuthDetectionSvnKit();
+		
 		// No need for a subversion server, just require authentcation
 		int port = 49999; // TODO random test port
 		Server server = new Server(port);
@@ -55,7 +59,7 @@ public class SvnKitTest {
 			repository.info("/", SVNRevision.HEAD.getNumber());
 		} catch (SVNException e) {
 			try {
-				AuthFailedException.analyze(e);
+				authDetection.analyze(e);
 				fail("Should have detected authentication failure from " + e);
 			} catch (AuthFailedException a) {
 				assertSame(e, a.getCause());

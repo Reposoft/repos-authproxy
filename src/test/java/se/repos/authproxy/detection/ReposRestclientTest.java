@@ -1,4 +1,4 @@
-package se.repos.authproxy.http.supports;
+package se.repos.authproxy.detection;
 
 import static org.junit.Assert.*;
 
