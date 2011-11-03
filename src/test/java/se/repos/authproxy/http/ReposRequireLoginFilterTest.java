@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class ReposRequireLoginFilterTest {
 	public void testFilterJetty() throws Exception {
 		// http://wiki.eclipse.org/Jetty/Tutorial/Embedding_Jetty
 		
-		int port = 49999; // TODO random test port
+		int port = 49993; // TODO random test port
 		Server server = new Server(port);
  
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -82,7 +81,7 @@ public class ReposRequireLoginFilterTest {
 	@SuppressWarnings("serial")
 	@Test
 	public void testSignalsFromBackend() throws Exception {
-		int port = 49999; // TODO random test port
+		int port = 49994; // TODO random test port
 		Server server = new Server(port);
  
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -111,7 +110,7 @@ public class ReposRequireLoginFilterTest {
 				ResponseHeaders headers = mock(ResponseHeaders.class);
 				when(headers.getStatus()).thenReturn(401);
 				when(headers.get("WWW-Authenticate")).thenReturn(Arrays.asList("Basic realm=\"Other realm\""));
-				throw new HttpStatusError(new URL("http://localhost:4999/c"), headers, "failed");
+				throw new HttpStatusError("http://localhost:4999/c", headers, "failed");
 			}
 		}), "/c");
 		context.addServlet(new ServletHolder(new HttpServlet() {
@@ -120,7 +119,7 @@ public class ReposRequireLoginFilterTest {
 				ResponseHeaders headers = mock(ResponseHeaders.class);
 				when(headers.getStatus()).thenReturn(401);
 				when(headers.get("WWW-Authenticate")).thenReturn(Arrays.asList("Basic realm=\"Test realm\""));
-				throw new HttpStatusError(new URL("http://localhost:4999/d"), headers, "failed");
+				throw new HttpStatusError("http://localhost:4999/d", headers, "failed");
 			}
 		}), "/d");
 		

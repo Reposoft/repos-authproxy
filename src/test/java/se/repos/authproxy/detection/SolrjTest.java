@@ -31,7 +31,7 @@ public class SolrjTest {
 	@Test
 	public void testToReposAuthFailedException() throws Exception {
 		// No need for a solr server, just require authentcation
-		int port = 49999; // TODO random test port
+		int port = 49992; // TODO random test port
 		Server server = new Server(port);
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");

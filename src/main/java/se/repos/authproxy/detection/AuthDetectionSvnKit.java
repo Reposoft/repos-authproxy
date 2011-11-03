@@ -11,11 +11,6 @@ import se.repos.authproxy.AuthDetection;
  */
 public class AuthDetectionSvnKit implements AuthDetection {
 
-	// note that someone must still load the class for this to happen
-	static {
-		known.add(new AuthDetectionSvnKit());
-	}
-	
 	@Override
 	public void analyze(Throwable e) throws AuthFailedException {
 		if ("org.tmatesoft.svn.core.SVNAuthenticationException".equals(e.getClass().getName())) {

@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>restclient</artifactId>
-			<version>1.2</version>
+			<version>1.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>se.repos</groupId>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>example-jetty-embedded</artifactId>
-			<version>7.3.0.v20110203</version>
+			<version>7.5.4.v20111024</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

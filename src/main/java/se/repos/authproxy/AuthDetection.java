@@ -1,8 +1,13 @@
 package se.repos.authproxy;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.LoggerFactory;
+
+import se.repos.authproxy.detection.AuthDetectionRestclient;
+import se.repos.authproxy.detection.AuthDetectionSvnKit;
 import se.repos.authproxy.http.ReposLoginOnDemandFilter;
 
 /**
@@ -24,14 +29,21 @@ import se.repos.authproxy.http.ReposLoginOnDemandFilter;
  * is that it makes code aware of the retries that HTTP authentication uses.
  */
 public interface AuthDetection {
-
+	
 	/**
 	 * Can be used to statically add new analyzers that should
 	 * be invoked when running {@link #all}.
 	 * 
-	 * Should be considered add-only, don't remove or replace items (could be enforced by list impl).
+	 * Should be considered add-only, don't remove or replace items (could be enforced by set impl).
+	 * 
+	 * Initialized with all impls in the detection package. No need to be flexible
+	 * here, as we plan an init param in filters to set an arbitrary implementation.
 	 */
-	public static final Set<AuthDetection> known = new HashSet<AuthDetection>();
+	public static final Set<AuthDetection> known = new HashSet<AuthDetection>(
+			Arrays.asList(
+				new AuthDetectionRestclient(),
+				new AuthDetectionSvnKit()
+			));
 	
 	/**
 	 * Default analyzer for static use, invoking all currently {@link #known}.
@@ -39,9 +51,13 @@ public interface AuthDetection {
 	public static final AuthDetection all = new AuthDetection() {
 		@Override
 		public void analyze(Throwable e) throws AuthFailedException {
-			if (known.size() == 0) System.err.println("Static AuthDetection list is empty. Running all is of no use.");
 			for (AuthDetection a : known) {
-				a.analyze(e);
+				try {
+					a.analyze(e);
+				} catch (AuthFailedException f) {
+					LoggerFactory.getLogger(AuthDetection.class).info("Authentication error detected by {} in {}", a, e);
+					throw f;
+				}
 			}
 		}
 	};

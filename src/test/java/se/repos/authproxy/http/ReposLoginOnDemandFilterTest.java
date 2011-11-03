@@ -5,7 +5,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -19,6 +18,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.repos.authproxy.AuthFailedException;
@@ -38,6 +38,7 @@ public class ReposLoginOnDemandFilterTest {
 	 */
 	@SuppressWarnings("serial")
 	@Test
+	@Ignore // filter not implemented yet
 	public void testSignalsFromBackend() throws Exception {
 		int port = 49999; // TODO random test port
 		Server server = new Server(port);
@@ -73,7 +74,7 @@ public class ReposLoginOnDemandFilterTest {
 				ResponseHeaders headers = mock(ResponseHeaders.class);
 				when(headers.getStatus()).thenReturn(401);
 				when(headers.get("WWW-Authenticate")).thenReturn(Arrays.asList("Basic realm=\"Other realm\""));
-				throw new HttpStatusError(new URL("http://localhost:4999/c"), headers, "failed");
+				throw new HttpStatusError("http://localhost:4999/c", headers, "failed");
 			}
 		}), "/c");
 		context.addServlet(new ServletHolder(new HttpServlet() {
@@ -82,12 +83,11 @@ public class ReposLoginOnDemandFilterTest {
 				ResponseHeaders headers = mock(ResponseHeaders.class);
 				when(headers.getStatus()).thenReturn(401);
 				when(headers.get("WWW-Authenticate")).thenReturn(Arrays.asList("Basic realm=\"Test realm\""));
-				throw new HttpStatusError(new URL("http://localhost:4999/d"), headers, "failed");
+				throw new HttpStatusError("http://localhost:4999/d", headers, "failed");
 			}
 		}), "/d");
 		
-		//Filter filter = new DebugFilter(); // had issues with malfunctioning filter hanging the test
-		Filter filter = new ReposRequireLoginFilter();
+		Filter filter = new ReposLoginOnDemandFilter();
 		FilterHolder holder = new FilterHolder(filter);
 		holder.setInitParameter("realm", "Test realm");
 		//holder.setInitParameter("currentUserImpl", ""); // Needs to be same instance?
