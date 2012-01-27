@@ -7,7 +7,7 @@ import se.repos.authproxy.ReposCurrentUser;
 /**
  * The logic that is not related to storage.
  */
-abstract class ReposCurrentUserBase implements ReposCurrentUser {
+public abstract class ReposCurrentUserBase implements ReposCurrentUser {
 
 	abstract void success(String username, String password);
 	
