@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -98,7 +98,7 @@ public class ReposLoginOnDemandFilterTest {
 		RestClient client = new RestClientJavaNet("http://localhost:" + port + "", null);
 		RestClient clientWithAuth = new RestClientHc("http://localhost:" + port + "", new RestAuthentication() {
 			@Override public String getUsername(String u, String e, String a) { return "name"; }
-			@Override public SSLSocketFactory getSSLSocketFactory(String root) { return null; }
+			@Override public SSLContext getSSLContext(String root) { return null; }
 			@Override public String getPassword(String u, String e, String a, String n) { return "pass"; }
 		});
 		RestResponseBean resp = new RestResponseBean();

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -134,7 +134,7 @@ public class ReposRequireLoginFilterTest {
 		RestClient client = new RestClientJavaNet("http://localhost:" + port + "", null);
 		RestClient clientWithAuth = new RestClientHc("http://localhost:" + port + "", new RestAuthentication() {
 			@Override public String getUsername(String u, String e, String a) { return "name"; }
-			@Override public SSLSocketFactory getSSLSocketFactory(String root) { return null; }
+			@Override public SSLContext getSSLContext(String root) { return null; }
 			@Override public String getPassword(String u, String e, String a, String n) { return "pass"; }
 		});
 		RestResponseBean resp = new RestResponseBean();

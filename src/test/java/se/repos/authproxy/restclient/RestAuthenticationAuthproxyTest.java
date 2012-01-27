@@ -17,7 +17,7 @@ public class RestAuthenticationAuthproxyTest {
 		RestAuthenticationAuthproxy auth = new RestAuthenticationAuthproxy(user);
 		assertEquals("us", auth.getUsername("", "", ""));
 		assertEquals("pw", auth.getPassword("", "", "", "us"));
-		assertNull(auth.getSSLSocketFactory(""));
+		assertNull(auth.getSSLContext(""));
 	}
 
 }

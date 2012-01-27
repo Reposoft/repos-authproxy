@@ -17,5 +17,5 @@ public class AuthRequiredException extends AuthFailedException {
 	public AuthRequiredException(Throwable cause, String realm) {
 		super(cause, realm);
 	}
-		
+	
 }

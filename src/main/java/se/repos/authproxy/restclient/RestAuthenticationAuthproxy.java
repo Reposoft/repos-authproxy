@@ -1,7 +1,7 @@
 package se.repos.authproxy.restclient;
 
 import javax.inject.Inject;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext;
 
 import se.repos.authproxy.ReposCurrentUser;
 import se.repos.restclient.RestAuthentication;
@@ -45,7 +45,7 @@ public class RestAuthenticationAuthproxy implements RestAuthentication {
 	 * as SSL cert authentication can not be forwarded.
 	 */
 	@Override
-	public SSLSocketFactory getSSLSocketFactory(String root) {
+	public SSLContext getSSLContext(String root) {
 		return null;
 	}
 
