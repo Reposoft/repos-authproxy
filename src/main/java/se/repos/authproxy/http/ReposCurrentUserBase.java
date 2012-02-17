@@ -9,7 +9,13 @@ import se.repos.authproxy.ReposCurrentUser;
  */
 public abstract class ReposCurrentUserBase implements ReposCurrentUser {
 
-	abstract void success(String username, String password);
+	/**
+	 * Called when credentials are provided.
+	 * This being authproxy, credentials are not validated at this point.
+	 * @param username Provided login name
+	 * @param password Provided login passowrd
+	 */
+	abstract void provide(String username, String password);
 	
 	@Override
 	public boolean isAuthenticated() {

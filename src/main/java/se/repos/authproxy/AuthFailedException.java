@@ -7,9 +7,9 @@ package se.repos.authproxy;
  * <p>
  * The auth proxy also understands {@link se.repos.restclient.HttpStatusError} with status 401.
  * <p>
- * See also {@link AuthRequiredException}, but consider using
+ * See also {@link AuthRequiredException}, and consider using
  * {@link ReposCurrentUser#getUsernameRequired(String)} and
- * {@link ReposCurrentUser#setFailed(String)} instead.
+ * {@link ReposCurrentUser#setFailed(String)}.
  * <p>
  * Note that in HTTP auth there is no difference between missing and invalid login;
  * the server will keep sending 401 Authentication Required for every {@link AuthFailedException}.

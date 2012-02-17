@@ -16,7 +16,7 @@ public class BasicAuthTokenTest {
 		ReposCurrentUserBase holder = mock(ReposCurrentUserBase.class);
 		assertTrue("Should consider us authenticated",
 				new BasicAuthToken(req).onto(holder).isFound());
-		verify(holder).success("apa", "bepa");
+		verify(holder).provide("apa", "bepa");
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public class BasicAuthTokenTest {
 		ReposCurrentUserBase holder = mock(ReposCurrentUserBase.class);
 		assertFalse("Should not be authenticated",
 				new BasicAuthToken(req).onto(holder).isFound());
-		verify(holder, times(0)).success(anyString(), anyString());
+		verify(holder, times(0)).provide(anyString(), anyString());
 	}
 
 	@Test

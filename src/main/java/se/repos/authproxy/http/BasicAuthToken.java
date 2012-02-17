@@ -42,7 +42,7 @@ class BasicAuthToken {
 	 */
 	BasicAuthToken onto(ReposCurrentUserBase holder) {
 		if (isFound()) {
-			holder.success(pair[0], pair[1]);
+			holder.provide(pair[0], pair[1]);
 		}
 		return this;
 	}

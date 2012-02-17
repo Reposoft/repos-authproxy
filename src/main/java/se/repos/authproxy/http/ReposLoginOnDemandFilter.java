@@ -15,8 +15,8 @@ import se.repos.authproxy.AuthRequiredException;
  * Catches {@link AuthRequiredException} and requests authentication
  * from client, leading to a new request with ReposAuthHolder populated.
  * <p>
- * If {@link AuthRequiredException} can not produce a realm,
- * realm must be configured in this filter.
+ * If {@link AuthRequiredException} can not produce a realm for all services,
+ * use instead {@link ReposLoginOnDemandRealmFilter} with fixed realm.
  * <p>
  * Web browsers usually remember the paths where credentials should be sent
  * with the requests so the try-retry roundtrip is normally done only once

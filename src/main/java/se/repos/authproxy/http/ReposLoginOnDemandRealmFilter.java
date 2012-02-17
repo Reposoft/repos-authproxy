@@ -18,37 +18,18 @@ import se.repos.authproxy.AuthDetection;
 import se.repos.authproxy.AuthFailedException;
 import se.repos.authproxy.AuthRequiredException;
 import se.repos.authproxy.ReposCurrentUser;
-import se.repos.restclient.HttpStatusError;
 
 /**
- * Simple filter that requires BASIC authentication for all requests.
- * Used as an alternative filter where the try-retry approach of
- * {@link ReposLoginOnDemandFilter} is not practical.
- * <p>
- * This filter must be configured with a realm, unlike on-demand authentication.
- * <p>
- * The filter interprets all {@link AuthFailedException} and
- * {@link HttpStatusError} with status 401 from the request handling chain
- * as failed authentication from the backend, leading to the
- * 401 Authentication Required message being sent again.
- * <p>
- * {@link AuthRequiredException} is treated as illegal state, because
- * as this filter never allows request handling without credentials,
- * it would be erroneous behavior from the servlet to throw that error.
- * <p>
- * TODO
- * It could provide different message bodies or additional headers
- * to distinguish between retry because of no authentication present
- * or retry because of failure from backend, but that would
- * be a deviation from what most HTTP servers do.
+ * Prompts for authentication on {@link AuthRequiredException}
+ * but uses a configured realm, not requiring services to detect realm.
  */
-public class ReposRequireLoginFilter implements Filter {
+public class ReposLoginOnDemandRealmFilter implements Filter {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private ReposCurrentUserBase currentUser;
 	private String realm = "_realm_not_set_";
-	private AuthDetection authDetection = AuthDetection.all; // TODO activate known
+	private AuthDetection authDetection = AuthDetection.all; // TODO activate known	
 	
 	void setRealm(String realm) {
 		this.realm = realm;
@@ -56,7 +37,7 @@ public class ReposRequireLoginFilter implements Filter {
 	
 	String getRealm() {
 		return this.realm;
-	}
+	}	
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -77,12 +58,11 @@ public class ReposRequireLoginFilter implements Filter {
 
 		// This filter always requires login, although it can not validate them other than through exceptions received
 		if (!new BasicAuthToken(req).onto(currentUser).isFound()) {
-			logger.debug("Requesting authentication");
-			requireAuthentication(resp, getRealm());
-			return; // proceeding with chain would lead to illegal state
+			logger.debug("The request is not authenticated");
+		} else {
+			logger.debug("The request is authenticated as user '{}'", currentUser.getUsername());
 		}
 
-		logger.debug("The request is authenticated as user '{}'", currentUser.getUsername());
 		try {
 			try {
 				chain.doFilter(request, response);

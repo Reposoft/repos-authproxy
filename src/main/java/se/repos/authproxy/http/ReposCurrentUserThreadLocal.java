@@ -25,7 +25,7 @@ public class ReposCurrentUserThreadLocal extends ReposCurrentUserBase {
 	}
 
 	@Override
-	void success(String username, String password) {
+	void provide(String username, String password) {
 		u.set(username);
 		p.set(password);
 	}

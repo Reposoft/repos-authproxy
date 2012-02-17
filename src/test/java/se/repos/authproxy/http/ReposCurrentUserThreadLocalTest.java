@@ -27,7 +27,7 @@ public class ReposCurrentUserThreadLocalTest {
 		} catch (IllegalStateException e) {
 			assertEquals("Service reported authentication failure when not authenticated", e.getMessage());
 		}
-		cu.success("me", "my");
+		cu.provide("me", "my");
 		assertTrue(cu.isAuthenticated());
 		assertEquals("me", cu.getUsername());
 		assertEquals("my", cu.getPassword());
@@ -54,14 +54,14 @@ public class ReposCurrentUserThreadLocalTest {
 			@Override public void run() {
 				assertFalse("Should not be authenticated yet in thread " 
 						+ Thread.currentThread().getId(), cu.isAuthenticated());
-				cu.success("t1", "pwd1");
+				cu.provide("t1", "pwd1");
 			}
 		});
 		final Thread t2 = new Thread(new Runnable() {
 			@Override public void run() {
 				assertFalse("Should not be authenticated yet in thread " 
 						+ Thread.currentThread().getId(), cu.isAuthenticated());
-				cu.success("t2", "pwd2");
+				cu.provide("t2", "pwd2");
 				t1.start();
 				try {
 					t1.join();
@@ -84,7 +84,7 @@ public class ReposCurrentUserThreadLocalTest {
 		final Thread t1 = new Thread(new Runnable() {
 			ReposCurrentUserBase cu = new ReposCurrentUserThreadLocal();
 			@Override public void run() {
-				cu.success("t1", "pwd1");
+				cu.provide("t1", "pwd1");
 				assertEquals("t1", cu.getUsername());
 			}
 		});
@@ -98,7 +98,7 @@ public class ReposCurrentUserThreadLocalTest {
 					throw new RuntimeException("Error not handled", e);
 				}
 				assertFalse(cu.isAuthenticated());
-				cu.success("t2", "pwd2");
+				cu.provide("t2", "pwd2");
 				assertEquals("t2", cu.getUsername());
 			}
 		});
