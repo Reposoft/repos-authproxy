@@ -7,8 +7,13 @@ import se.repos.authproxy.ReposCurrentUser;
 import se.repos.restclient.RestAuthentication;
 
 /**
- * Uses repos-authproxy to implement restclient's Authentication
- * credentials provider service.
+ * Uses repos-authproxy to implement restclient's
+ * Authentication credentials provider service.
+ * 
+ * Nothing is cached here; Every call to this class produces a
+ * new call to {@link ReposCurrentUser},
+ * allowing thread-safe operation with different credentials in each thread
+ * where the {@link ReposCurrentUser} impl operates like that.
  */
 public class RestAuthenticationAuthproxy implements RestAuthentication {
 
