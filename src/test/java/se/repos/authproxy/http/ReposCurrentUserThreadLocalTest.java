@@ -110,4 +110,17 @@ public class ReposCurrentUserThreadLocalTest {
 		}
 	}
 	
+	@Test
+	public void testClear() {
+		ReposCurrentUserThreadLocal cu = new ReposCurrentUserThreadLocal();
+		cu.provide("u", "p");
+		assertEquals("u", cu.getUsername());
+		assertEquals("p", cu.getPassword());
+		assertTrue(cu.isAuthenticated());
+		cu.clear();
+		assertEquals(null, cu.getUsername());
+		assertEquals(null, cu.getPassword());
+		assertFalse(cu.isAuthenticated());
+	}
+	
 }

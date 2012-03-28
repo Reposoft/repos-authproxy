@@ -21,6 +21,11 @@ public class ReposCurrentUserBaseTest {
 				this.u = username;
 				this.p = password;
 			}
+			@Override
+			void clear() {
+				this.u = null;
+				this.p = null;
+			}
 		};
 		
 		assertFalse(b.isAuthenticated());

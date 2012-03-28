@@ -95,6 +95,9 @@ public class ReposRequireLoginFilter implements Filter {
 			} catch (RuntimeException e) {
 				authDetection.analyze(e);
 				throw e;
+			} finally {
+				// This is not strictly necessary when login is required, but should be done in all filters anyway
+				currentUser.clear();
 			}
 		} catch (AuthFailedException e) {
 			// TODO make sure body output has not started

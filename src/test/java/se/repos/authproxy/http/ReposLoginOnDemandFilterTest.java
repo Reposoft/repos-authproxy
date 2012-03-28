@@ -9,7 +9,11 @@ import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +27,7 @@ import org.junit.Test;
 
 import se.repos.authproxy.AuthFailedException;
 import se.repos.authproxy.AuthRequiredException;
+import se.repos.authproxy.ReposCurrentUser;
 import se.repos.restclient.HttpStatusError;
 import se.repos.restclient.ResponseHeaders;
 import se.repos.restclient.RestAuthentication;
@@ -33,6 +38,58 @@ import se.repos.restclient.javase.RestClientJavaNet;
 
 public class ReposLoginOnDemandFilterTest {
 
+	@Ignore // filter not implemented yet
+	@Test
+	public void testClear() throws IOException, ServletException {
+		Filter filter = new ReposLoginOnDemandFilter();
+		FilterConfig config = mock(FilterConfig.class);
+		when(config.getInitParameter("realm")).thenReturn("testClear");
+		filter.init(config);
+		final ReposCurrentUser currentUser = ReposCurrentUser.DEFAULT; // same as filter
+		HttpServletRequest req = mock(HttpServletRequest.class);
+		HttpServletResponse resp = mock(HttpServletResponse.class);
+		when(req.getHeader("Authorization")).thenReturn("Basic dGVzdDp0ZXN0");
+		FilterChain chain = new FilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				assertTrue("Should have authentication during servlet execution", currentUser.isAuthenticated());
+			}
+		};
+		filter.doFilter(req, resp, chain);
+		assertFalse("should clear authentication after request processing has completed so it is not reused", currentUser.isAuthenticated());
+		
+		FilterChain chainEx = new FilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				assertTrue(currentUser.isAuthenticated());
+				throw new ServletException("test clear ex");
+			}
+		};
+		try {
+			filter.doFilter(req, resp, chainEx);
+		} catch (ServletException ex) {
+			assertEquals("test clear ex", ex.getMessage());
+		}
+		assertFalse("should clear after servlet exception", currentUser.isAuthenticated());
+		
+		FilterChain chainRe = new FilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				assertTrue(currentUser.isAuthenticated());
+				throw new RuntimeException("test clear re");
+			}
+		};
+		try {
+			filter.doFilter(req, resp, chainRe);
+		} catch (RuntimeException re) {
+			assertEquals("test clear re", re.getMessage());
+		}
+		assertFalse("should clear after any exception from filter chain", currentUser.isAuthenticated());		
+	}
+	
 	/**
 	 * Should be duplicated in {@link ReposLoginOnDemandFilterTest} to clarify differences.
 	 */

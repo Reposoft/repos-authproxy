@@ -30,4 +30,10 @@ public class ReposCurrentUserThreadLocal extends ReposCurrentUserBase {
 		p.set(password);
 	}
 
+	@Override
+	void clear() {
+		u.set(null);
+		p.set(null);
+	}
+
 }

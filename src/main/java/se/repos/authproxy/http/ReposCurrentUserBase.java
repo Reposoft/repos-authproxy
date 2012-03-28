@@ -17,6 +17,12 @@ public abstract class ReposCurrentUserBase implements ReposCurrentUser {
 	 */
 	abstract void provide(String username, String password);
 	
+	/**
+	 * Called after processing to clear credentials,
+	 * essential for storage in thread local etc.
+	 */
+	abstract void clear();
+	
 	@Override
 	public boolean isAuthenticated() {
 		return getUsername() != null;

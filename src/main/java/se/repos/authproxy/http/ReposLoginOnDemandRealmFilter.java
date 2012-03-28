@@ -75,6 +75,9 @@ public class ReposLoginOnDemandRealmFilter implements Filter {
 			} catch (RuntimeException e) {
 				authDetection.analyze(e);
 				throw e;
+			} finally {
+				// Crucial removal of authentication after processing  - do this before anything else.
+				currentUser.clear();
 			}
 		} catch (AuthFailedException e) {
 			// TODO make sure body output has not started
