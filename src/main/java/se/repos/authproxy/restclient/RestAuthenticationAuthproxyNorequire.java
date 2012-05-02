@@ -8,33 +8,32 @@ import se.repos.authproxy.ReposCurrentUser;
 import se.repos.restclient.RestAuthentication;
 
 /**
- * Crendentials provider to as-needed BASIC authentication
- * in repos-restclient, backed by authproxy.
+ * Uses repos-authproxy to implement restclient's
+ * Authentication credentials provider service.
  * <p>
- * Enforces authentication and can therefore not be used to 
- * see if there is user authentication or not.
- * Any call to {@link #getUsername(String, String, String)}
- * causes a {@link ReposCurrentUser#getUsernameRequired(String)}.
- * {@link RestAuthenticationAuthproxyNorequire} can be used for
- * checks without requiring authentication, but with it the authproxy
- * concept requires all exceptions resulting from authentication
- * not set to be recognized in {@link AuthDetection}.
- * {@link ReposCurrentUser} is the authproxy compatible way
- * of checking for authentication.
+ * As {@link #getUsername(String, String, String)} returns null if no
+ * authentication has been made, this implementation is only suitable
+ * together with {@link se.repos.authproxy.http.ReposRequireLoginFilter}
+ * or exceptions understood in {@link AuthDetection}
+ * or custom mapping of connection error to {@link se.repos.authproxy.AuthFailedException}.
+ * <p>
+ * Unlike {@link RestAuthenticationAuthproxy} this impl
+ * can be used to check if a user is authenticated.
+ * Normally, however, this should be done through {@link ReposCurrentUser}.
  * <p>
  * Nothing is cached here; Every call to this class produces a
  * new call to {@link ReposCurrentUser},
  * allowing thread-safe operation with different credentials in each thread
  * where the {@link ReposCurrentUser} impl operates like that.
  */
-public class RestAuthenticationAuthproxy implements RestAuthentication {
+public class RestAuthenticationAuthproxyNorequire implements RestAuthentication {
 
 	private ReposCurrentUser user;
 
 	/**
 	 * Uses default {@link ReposCurrentUser}.
 	 */
-	public RestAuthenticationAuthproxy() {
+	public RestAuthenticationAuthproxyNorequire() {
 		this(ReposCurrentUser.DEFAULT);
 	}
 	
@@ -42,16 +41,13 @@ public class RestAuthenticationAuthproxy implements RestAuthentication {
 	 * Custom credentials management.
 	 */
 	@Inject
-	public RestAuthenticationAuthproxy(ReposCurrentUser reposCurrentUser) {
+	public RestAuthenticationAuthproxyNorequire(ReposCurrentUser reposCurrentUser) {
 		this.user = reposCurrentUser;	
 	}
 	
 	@Override
 	public String getUsername(String root, String resource, String realm) {
-		if (realm == null) {
-			throw new IllegalArgumentException("Realm detection is required for authproxy REST authentication");
-		}
-		return user.getUsernameRequired(realm);
+		return user.getUsername();
 	}
 
 	@Override
