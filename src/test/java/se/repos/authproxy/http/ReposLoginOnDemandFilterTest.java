@@ -2,6 +2,7 @@ package se.repos.authproxy.http;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -189,5 +190,37 @@ public class ReposLoginOnDemandFilterTest {
 			server.stop();
 		}
 	}
+	
+	/**
+	 * Many frameworks wrap all exceptions, including runtime.
+	 */
+	@Test
+	@Ignore
+	public void testWrappedAuthFailedException() throws IOException, ServletException {
+		ReposLoginOnDemandFilter filter = new ReposLoginOnDemandFilter();
+		FilterConfig config = mock(FilterConfig.class);
+		filter.init(config);
+		
+		HttpServletRequest req = mock(HttpServletRequest.class);
+		HttpServletResponse resp = mock(HttpServletResponse.class);
+		
+		AuthRequiredException f = new AuthRequiredException("", "got the realm");
+		final Exception e = new Exception(f);
+		FilterChain chain = new FilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				throw new ServletException(e);
+			}
+		};
+		
+		try {
+			filter.doFilter(req, resp, chain);
+		} catch (Exception x) {
+			fail("Should detect the authentication error and prompt, got: " + x);
+		}
+		verify(resp).sendError(401);
+		// TODO verify that the auth header has the right realm
+	}	
 
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.slf4j.LoggerFactory;
 
+import se.repos.authproxy.detection.AuthDetectionAuthproxyWrapped;
 import se.repos.authproxy.detection.AuthDetectionRestclient;
 import se.repos.authproxy.detection.AuthDetectionSvnKit;
 import se.repos.authproxy.http.ReposLoginOnDemandFilter;
@@ -41,6 +42,7 @@ public interface AuthDetection {
 	 */
 	public static final Set<AuthDetection> known = new HashSet<AuthDetection>(
 			Arrays.asList(
+				new AuthDetectionAuthproxyWrapped(),
 				new AuthDetectionRestclient(),
 				new AuthDetectionSvnKit()
 			));

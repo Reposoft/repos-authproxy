@@ -195,5 +195,36 @@ public class ReposLoginOnDemandRealmFilterTest {
 			server.stop();
 		}
 	}
+	
+	/**
+	 * Many frameworks wrap all exceptions, including runtime.
+	 */
+	@Test
+	public void testWrappedAuthFailedException() throws IOException, ServletException {
+		ReposLoginOnDemandRealmFilter filter = new ReposLoginOnDemandRealmFilter();
+		FilterConfig config = mock(FilterConfig.class);
+		when(config.getInitParameter("realm")).thenReturn("configured");
+		filter.init(config);
+		
+		HttpServletRequest req = mock(HttpServletRequest.class);
+		HttpServletResponse resp = mock(HttpServletResponse.class);
+		
+		AuthFailedException f = new AuthFailedException("", "got the realm");
+		final Exception e = new Exception(f);
+		FilterChain chain = new FilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				throw new ServletException(e);
+			}
+		};
+		
+		try {
+			filter.doFilter(req, resp, chain);
+		} catch (Exception x) {
+			fail("Should detect the authentication error and prompt, got: " + x);
+		}
+		verify(resp).sendError(401);
+	}
 
 }
