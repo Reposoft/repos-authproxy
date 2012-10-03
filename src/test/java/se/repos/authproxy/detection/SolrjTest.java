@@ -5,16 +5,16 @@ import static org.mockito.Mockito.*;
 
 import javax.servlet.Filter;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScheme;
-import org.apache.commons.httpclient.auth.CredentialsNotAvailableException;
-import org.apache.commons.httpclient.auth.CredentialsProvider;
+import org.apache.http.auth.Credentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.eclipse.jetty.embedded.HelloServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -36,20 +36,21 @@ public class SolrjTest {
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		server.setHandler(context);
-		context.addServlet(new ServletHolder(new HelloServlet("SvnKit test")), "/*");
+		context.addServlet(new ServletHolder(new HelloServlet("Solrj test")), "/*");
 		Filter filter = new ReposRequireLoginFilter();
 		FilterHolder holder = new FilterHolder(filter);
 		holder.setInitParameter("realm", "See-if-solr-detects-this-realm");
 		context.addFilter(holder, "/*", 0);
 		server.start();
 		
-		SolrServer solrj = new CommonsHttpSolrServer("http://localhost:" + port + "/solr");
+		SolrServer solrj = new HttpSolrServer("http://localhost:" + port + "/solr");
 		ReposCurrentUser user = mock(ReposCurrentUser.class);
 		when(user.isAuthenticated()).thenReturn(false);
-		AuthProxySolrjAuthentication auth = new AuthProxySolrjAuthentication((CommonsHttpSolrServer) solrj, user);
+		AuthProxySolrjAuthentication auth = new AuthProxySolrjAuthentication((HttpSolrServer) solrj, user);
 		try {
 			solrj.query(new SolrQuery("*:*"));
-		} catch (SolrServerException e) {
+		//solrj3: } catch (SolrServerException e) {
+		} catch (org.apache.solr.common.SolrException e) {
 			try {
 				auth.analyze(e);
 				fail("Should have identified authentication error");
@@ -82,25 +83,36 @@ public class SolrjTest {
 		/**
 		 * Like {@link AuthFailedException#analyze(Exception)} but for Solrj.
 		 */
-		public void analyze(SolrServerException e) throws AuthFailedException {
-			if (e.getCause() instanceof org.apache.solr.common.SolrException &&
-					e.getCause().getMessage().startsWith("Unauthorized")) {
+		//solrj3: public void analyze(SolrServerException e) throws AuthFailedException {
+		public void analyze(org.apache.solr.common.SolrException e) throws AuthFailedException {
+			System.out.println("Here: " + e.getMessage());
+			//solrj3: if (e.getCause() instanceof org.apache.solr.common.SolrException &&
+			if (e instanceof org.apache.solr.common.SolrException &&
+					//solrj3: e.getCause().getMessage().startsWith("Unauthorized")) {
+					//solrj4: org.apache.solr.common.SolrException: Server at http://localhost:49992/solr returned non ok status:401, message:Unauthorized
+					e.getMessage().endsWith("status:401, message:Unauthorized")) {
 				throw new AuthFailedException("solrj", lastRealm);
 			}
 		}
 		
-		public AuthProxySolrjAuthentication(CommonsHttpSolrServer solrjServer, final ReposCurrentUser user) {
+		public AuthProxySolrjAuthentication(HttpSolrServer solrjServer, final ReposCurrentUser user) {
 			HttpClient httpClient = solrjServer.getHttpClient();
-			// see httpclient 3.1 InteractiveAuthenticationExample
-			httpClient.getParams().setParameter(CredentialsProvider.PROVIDER, new CredentialsProvider() {
+			//solrj3: httpClient.getParams().setParameter(CredentialsProvider.PROVIDER, 
+			((AbstractHttpClient) httpClient).setCredentialsProvider(new CredentialsProvider() {
 				@Override
-				public Credentials getCredentials(AuthScheme scheme, String host, int port, boolean proxy) 
-						throws CredentialsNotAvailableException {
-					lastRealm = scheme.getRealm();
+				public void clear() {
+				}
+				@Override
+				public Credentials getCredentials(AuthScope authscope) {
+					lastRealm = authscope.getRealm();
 					if (!user.isAuthenticated()) {
-						throw new CredentialsNotAvailableException();
+						//solrj3: throw new CredentialsNotAvailableException();
+						return null;
 					}
 					return new UsernamePasswordCredentials(user.getUsername(), user.getPassword());
+				}
+				@Override
+				public void setCredentials(AuthScope authscope, Credentials arg1) {
 				}
 			});
 		}
