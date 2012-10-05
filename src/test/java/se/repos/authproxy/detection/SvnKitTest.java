@@ -67,7 +67,7 @@ public class SvnKitTest {
 		// Test that authentication failure and realm can be detected
 		try {
 			DAVRepositoryFactory.setup();
-			SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded("http://localhost:" + port + "/svn"));
+			SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIEncoded("http://localhost:" + port + "/svn"));
 			ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager();
 			repository.setAuthenticationManager(authManager);
 			repository.info("/", SVNRevision.HEAD.getNumber());
