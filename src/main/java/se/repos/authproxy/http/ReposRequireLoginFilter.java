@@ -116,7 +116,7 @@ public class ReposRequireLoginFilter implements Filter {
 			}
 		} catch (AuthFailedException e) {
 			// TODO make sure body output has not started
-			logger.info("Authentication failure from service detected.", e);
+			logger.warn("Authentication failure from service detected.", e);
 			if (e.getRealm() == null || e.getRealm().length() == 0) {
 				logger.warn("No login realm provided for auth exception -- incompatible with on-demand auth");
 			}
