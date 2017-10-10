@@ -106,6 +106,7 @@ public class SolrjTest {
 					//solrj3: e.getCause().getMessage().startsWith("Unauthorized")) {
 					//solrj4: org.apache.solr.common.SolrException: Server at http://localhost:49992/solr returned non ok status:401, message:Unauthorized
 					e.getMessage().endsWith("status:401, message:Unauthorized")) {
+					//e.getMessage().contains("Error 401 Unauthorized")) {
 				throw new AuthFailedException("solrj", lastRealm);
 			}
 		}
