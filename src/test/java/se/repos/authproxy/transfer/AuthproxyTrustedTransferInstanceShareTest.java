@@ -110,4 +110,89 @@ public class AuthproxyTrustedTransferInstanceShareTest {
 		}
 	}
 
+	
+	@Test
+	public void testImpersonate() throws Exception {
+		final ReposCurrentUser u = new ReposCurrentUserThreadLocal();
+		
+		final AuthproxyTrustedTransfer transfer = new AuthproxyTrustedTransferInstanceShare(u);
+		
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+
+		Future<Boolean> task0 = executor.submit(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				return (u.getUsername() != null && !u.getUsername().isEmpty());
+			}
+		});
+		executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+		assertFalse("should have no auth when no impersonate has been done", task0.get());		
+		
+		transfer.impersonate("superuser");
+		Future<Boolean> task1 = executor.submit(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				transfer.spread();
+				return "superuser".equals(u.getUsername());
+			}
+		});
+		executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+		assertTrue("should have auth when impersonate is done", task1.get());		
+
+		Future<Boolean> task1x = executor.submit(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				boolean got = "superuser".equals(u.getUsername());
+				transfer.undo();
+				return got;
+			}
+		});
+		executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+		assertTrue("in single thread mode we expect impersonate to survive until undone", task1x.get());	
+		
+		Future<Boolean> task2 = executor.submit(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				return (u.getUsername() != null && !u.getUsername().isEmpty());
+			}
+		});
+		executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+		assertFalse("should have no auth when impersonate has been undone", task2.get());
+		
+	}
+	
+	@Test
+	public void testMustImpersonate() {
+		ReposCurrentUserThreadLocal u = new ReposCurrentUserThreadLocal();
+		AuthproxyTrustedTransfer transfer = new AuthproxyTrustedTransferInstanceShare(u);
+		try {
+			transfer.spread();
+			fail("Should not allow spread unless impersonated/captured");
+		} catch (IllegalStateException e) {
+			// expected
+		}
+		transfer.impersonate("bogus");
+		try {
+			transfer.capture();
+			fail("Users of this service should really know what they're doing and a capture after impersonate could indicate flaws");
+		} catch (IllegalStateException e) {
+			// expected
+		}
+		
+		try {
+			transfer.impersonate("again");
+			// This strictness might not be suitable for impersonate if a single request needs to impersonate different users.
+			fail("Users of this service should really know what they're doing and another impersonate/capture could indicate flaws");
+		} catch (IllegalStateException e) {
+			// expected
+		}
+		transfer.spread();
+		try {
+			transfer.spread();
+			fail("Users of this service should really know what they're doing and another spread could indicate flaws");
+		} catch (IllegalStateException e) {
+			// expected
+		}
+	}
+	
 }

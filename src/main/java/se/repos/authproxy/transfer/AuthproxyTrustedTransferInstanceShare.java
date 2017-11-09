@@ -47,6 +47,16 @@ public class AuthproxyTrustedTransferInstanceShare implements
 		this.spreadMethod = TransferMethodFactory.get(currentUser);
 	}
 	
+	//@Override
+	public void impersonate(String username) {
+		if (captured) {
+			throw new IllegalStateException("Can not continue because authentication has already been captured/impersonated but not transferred");
+		}
+		this.u = username;
+		this.p = "";
+		captured = true;
+	}
+	
 	@Override
 	public void capture() {
 		if (captured) {
