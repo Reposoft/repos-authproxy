@@ -30,6 +30,12 @@ import se.repos.authproxy.ReposCurrentUser;
 public interface AuthproxyTrustedTransfer {
 
 	/**
+	 * Impersonates a username, for next {@link #spread()}.
+	 * Feasible only when backend services do not verify the password.
+	 */
+	void impersonate(String username);
+	
+	/**
 	 * Saves, for next {@link #spread()}, credentials from this particular moment.
 	 */
 	void capture();
