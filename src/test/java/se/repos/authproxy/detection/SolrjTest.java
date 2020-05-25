@@ -15,21 +15,23 @@
  */
 package se.repos.authproxy.detection;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.Filter;
 
-import org.apache.http.auth.Credentials;
-import org.apache.http.client.HttpClient;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.SolrException;
 import org.eclipse.jetty.embedded.HelloServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -58,10 +60,12 @@ public class SolrjTest {
 		context.addFilter(holder, "/*", 0);
 		server.start();
 		
-		SolrServer solrj = new HttpSolrServer("http://localhost:" + port + "/solr");
+		// SolR 6: Now using HttpSolrClient.
+		String url = "http://localhost:" + port + "/solr";
+		HttpSolrClient solrj = new HttpSolrClient.Builder(url).build();
 		ReposCurrentUser user = mock(ReposCurrentUser.class);
 		when(user.isAuthenticated()).thenReturn(false);
-		AuthProxySolrjAuthentication auth = new AuthProxySolrjAuthentication((HttpSolrServer) solrj, user);
+		AuthProxySolrjAuthentication auth = new AuthProxySolrjAuthentication((HttpSolrClient) solrj, user);
 		try {
 			solrj.query(new SolrQuery("*:*"));
 		//solrj3: } catch (SolrServerException e) {
@@ -82,6 +86,11 @@ public class SolrjTest {
 			assertEquals("Authentication should now have passed", 
 					"Invalid version (expected 2, but 60) or the data in not in 'javabin' format",
 					e.getCause().getMessage());
+		} catch (SolrException e) {
+			String msg = e.getMessage();
+			assertEquals("Authentication should now have passed", 
+					"/solr: Expected mime type application/octet-stream but got text/html. ",
+					msg.substring(msg.indexOf("/solr:"), msg.indexOf("<h")));
 		}
 	}
 
@@ -105,13 +114,14 @@ public class SolrjTest {
 			if (e instanceof org.apache.solr.common.SolrException &&
 					//solrj3: e.getCause().getMessage().startsWith("Unauthorized")) {
 					//solrj4: org.apache.solr.common.SolrException: Server at http://localhost:49992/solr returned non ok status:401, message:Unauthorized
-					e.getMessage().endsWith("status:401, message:Unauthorized")) {
-					//e.getMessage().contains("Error 401 Unauthorized")) {
+					//e.getMessage().endsWith("status:401, message:Unauthorized")) {
+					//solrj6:
+					e.getMessage().contains("Error 401 Unauthorized")) {
 				throw new AuthFailedException("solrj", lastRealm);
 			}
 		}
 		
-		public AuthProxySolrjAuthentication(HttpSolrServer solrjServer, final ReposCurrentUser user) {
+		public AuthProxySolrjAuthentication(HttpSolrClient solrjServer, final ReposCurrentUser user) {
 			HttpClient httpClient = solrjServer.getHttpClient();
 			//solrj3: httpClient.getParams().setParameter(CredentialsProvider.PROVIDER, 
 			((AbstractHttpClient) httpClient).setCredentialsProvider(new CredentialsProvider() {
