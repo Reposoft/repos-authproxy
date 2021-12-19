@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>se.repos</groupId>
 		<artifactId>maven-parent</artifactId>
-		<version>8.0.0</version>
+		<version>11.0.1</version>
 	</parent>
 	
 	<scm>
@@ -75,6 +75,12 @@
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>example-jetty-embedded</artifactId>
 			<version>7.5.4.v20111024</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback-version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
