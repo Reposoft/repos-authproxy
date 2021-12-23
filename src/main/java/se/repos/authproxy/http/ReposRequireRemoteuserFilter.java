@@ -31,9 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.authproxy.AuthDetection;
 import se.repos.authproxy.AuthFailedException;
-import se.repos.authproxy.AuthRequiredException;
 import se.repos.authproxy.ReposCurrentUser;
-import se.repos.restclient.HttpStatusError;
 
 /**
  * Simple filter that requires X-Forwarded-User header for all requests.
@@ -44,11 +42,17 @@ public class ReposRequireRemoteuserFilter implements Filter {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private ReposCurrentUserBase currentUser;
+	private String header = "X-Forwarded-User";
 	private AuthDetection authDetection = AuthDetection.all; // TODO activate known
 	
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
+		String header = filterConfig.getInitParameter("remote-user-header");
+		if (header != null && header.length() != 0) {
+			logger.info("Authentication expecting header: '{}'", header);
+			this.header = header;
+		}
 		currentUser = (ReposCurrentUserBase) ReposCurrentUser.DEFAULT; // could use an init param to set custom, unless we have dependency injection in filters 
 		logger.info("Require Login filter initialized, holder {}", currentUser);
 	}
@@ -60,7 +64,7 @@ public class ReposRequireRemoteuserFilter implements Filter {
 		HttpServletResponse resp = (HttpServletResponse) response;
 
 		// This filter always requires a logged in username via header.
-		String userHeader = req.getHeader("X-Forwarded-User");
+		String userHeader = req.getHeader(header);
 		if (userHeader == null || userHeader.trim().isEmpty()) {
 			logger.debug("Requesting authentication");
 			requireAuthentication(resp);
