@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>se.repos</groupId>
 		<artifactId>maven-parent</artifactId>
-		<version>11.0.1</version>
+		<version>11.0.2</version>
 	</parent>
 	
 	<scm>
@@ -57,18 +57,18 @@
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>restclient</artifactId>
-			<version>1.4.1</version>
+			<version>1.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>restclient-hc</artifactId>
-			<version>1.4.1</version>
+			<version>1.5.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 		    <groupId>org.tmatesoft.svnkit</groupId>
 		    <artifactId>svnkit</artifactId>
-		    <version>1.10.3</version>
+		    <version>1.10.4</version>
 		    <scope>test</scope>
 		</dependency>		
 		<dependency>
