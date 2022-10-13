@@ -35,7 +35,7 @@ import se.repos.authproxy.ReposCurrentUser;
 
 /**
  * Simple filter that requires X-Forwarded-User header for all requests.
- * TODO: Password empty or bogus?
+ * Optionally capture password / claim from a configurable header.
  */
 public class ReposRequireRemoteuserFilter implements Filter {
 
@@ -43,6 +43,7 @@ public class ReposRequireRemoteuserFilter implements Filter {
 	
 	private ReposCurrentUserBase currentUser;
 	private String header = "X-Forwarded-User";
+	private String headerPassword = null;
 	private AuthDetection authDetection = AuthDetection.all; // TODO activate known
 	
 	
@@ -53,6 +54,12 @@ public class ReposRequireRemoteuserFilter implements Filter {
 			logger.info("Authentication expecting header: '{}'", header);
 			this.header = header;
 		}
+		String headerPassword = filterConfig.getInitParameter("password-header");
+		if (headerPassword != null && headerPassword.length() != 0) {
+			logger.info("Authentication capturing password / claim from header: '{}'", headerPassword);
+			this.headerPassword = headerPassword;
+		}
+		
 		currentUser = (ReposCurrentUserBase) ReposCurrentUser.DEFAULT; // could use an init param to set custom, unless we have dependency injection in filters 
 		logger.info("Require Login filter initialized, holder {}", currentUser);
 	}
@@ -70,7 +77,7 @@ public class ReposRequireRemoteuserFilter implements Filter {
 			requireAuthentication(resp);
 			return; // proceeding with chain would lead to illegal state
 		} else {
-			currentUser.provide(userHeader, "");
+			currentUser.provide(userHeader, getPassword(req));
 		}
 
 		logger.debug("The request is authenticated as user '{}'", currentUser.getUsername());
@@ -95,6 +102,19 @@ public class ReposRequireRemoteuserFilter implements Filter {
 			logger.warn("Authentication failure from service detected (likely authz).", e);
 			requireAuthentication(resp);
 			return;
+		}
+	}
+	
+	private String getPassword(HttpServletRequest req) {
+		if (this.headerPassword == null) {
+			return "";
+		} else {
+			String pw = req.getHeader(this.headerPassword);
+			if (pw != null && !pw.isBlank()) {
+				return pw;
+			} else {
+				return "";
+			}
 		}
 	}
 
