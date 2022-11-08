@@ -36,6 +36,12 @@ public interface AuthproxyTrustedTransfer {
 	void impersonate(String username);
 	
 	/**
+	 * Impersonates a username, for next {@link #spread()}.
+	 * Feasible only when backend services do not verify the password / roles claim passed via password.
+	 */
+	void impersonate(String username, String password);
+	
+	/**
 	 * Saves, for next {@link #spread()}, credentials from this particular moment.
 	 */
 	void capture();

@@ -49,11 +49,16 @@ public class AuthproxyTrustedTransferInstanceShare implements
 	
 	//@Override
 	public void impersonate(String username) {
+		impersonate(username, "");
+	}
+	
+	//@Override
+	public void impersonate(String username, String password) {
 		if (captured) {
 			throw new IllegalStateException("Can not continue because authentication has already been captured/impersonated but not transferred");
 		}
 		this.u = username;
-		this.p = "";
+		this.p = password;
 		captured = true;
 	}
 	
