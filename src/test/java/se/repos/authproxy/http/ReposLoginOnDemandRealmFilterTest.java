@@ -45,7 +45,7 @@ import se.repos.restclient.RestAuthentication;
 import se.repos.restclient.RestClient;
 import se.repos.restclient.RestResponseBean;
 import se.repos.restclient.hc.RestClientHc;
-import se.repos.restclient.javase.RestClientJavaNet;
+import se.repos.restclient.javase.RestClientJavaHttp;
 
 /**
  * Prompts for authentication only when a service has required it
@@ -156,7 +156,7 @@ public class ReposLoginOnDemandRealmFilterTest {
 
 		server.start();
 		
-		RestClient client = new RestClientJavaNet("http://localhost:" + port + "", null);
+		RestClient client = new RestClientJavaHttp("http://localhost:" + port + "", null);
 		RestClient clientWithAuth = new RestClientHc("http://localhost:" + port + "", new RestAuthentication() {
 			@Override public String getUsername(String u, String e, String a) { return "name"; }
 			@Override public SSLContext getSSLContext(String root) { return null; }

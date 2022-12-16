@@ -41,7 +41,7 @@ import org.junit.Test;
 import se.repos.authproxy.ReposCurrentUser;
 import se.repos.restclient.HttpStatusError;
 import se.repos.restclient.RestResponseBean;
-import se.repos.restclient.javase.RestClientJavaNet;
+import se.repos.restclient.javase.RestClientJavaHttp;
 
 public class ReposRequireRemoteuserFilterTest {
 
@@ -65,7 +65,7 @@ public class ReposRequireRemoteuserFilterTest {
 
 		server.start();
 		
-		RestClientJavaNet client = new RestClientJavaNet("http://localhost:" + port + "", null);
+		RestClientJavaHttp client = new RestClientJavaHttp("http://localhost:" + port + "", null);
 		RestResponseBean resp = new RestResponseBean();
 		try {
 			client.get("/", resp);
@@ -103,7 +103,7 @@ public class ReposRequireRemoteuserFilterTest {
 		
 		HashMap<String, String> reqHeaders = new HashMap<String, String>();
 		reqHeaders.put("X-Forwarded-User", "theusersub");
-		RestClientJavaNet client = new RestClientJavaNet("http://localhost:" + port + "", null);
+		RestClientJavaHttp client = new RestClientJavaHttp("http://localhost:" + port + "", null);
 		RestResponseBean resp = new RestResponseBean();
 		try {
 			URL url = new URL("http", "localhost", port, "/");

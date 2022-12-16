@@ -48,7 +48,7 @@ import se.repos.restclient.RestAuthentication;
 import se.repos.restclient.RestClient;
 import se.repos.restclient.RestResponseBean;
 import se.repos.restclient.hc.RestClientHc;
-import se.repos.restclient.javase.RestClientJavaNet;
+import se.repos.restclient.javase.RestClientJavaHttp;
 
 public class ReposRequireLoginFilterTest {
 
@@ -72,7 +72,7 @@ public class ReposRequireLoginFilterTest {
 
 		server.start();
 		
-		RestClientJavaNet client = new RestClientJavaNet("http://localhost:" + port + "", null);
+		RestClientJavaHttp client = new RestClientJavaHttp("http://localhost:" + port + "", null);
 		RestResponseBean resp = new RestResponseBean();
 		try {
 			client.get("/", resp);
@@ -146,7 +146,7 @@ public class ReposRequireLoginFilterTest {
 
 		server.start();
 		
-		RestClient client = new RestClientJavaNet("http://localhost:" + port + "", null);
+		RestClient client = new RestClientJavaHttp("http://localhost:" + port + "", null);
 		RestClient clientWithAuth = new RestClientHc("http://localhost:" + port + "", new RestAuthentication() {
 			@Override public String getUsername(String u, String e, String a) { return "name"; }
 			@Override public SSLContext getSSLContext(String root) { return null; }
